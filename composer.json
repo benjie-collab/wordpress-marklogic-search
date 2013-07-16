@@ -11,12 +11,6 @@
             "email": "eric.bloch@gmail.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "git",
-            "url": "file:///Users/ebloch/repos/mlphp"
-        }
-    ],
     "require": {
         "php": ">=5.3.0",
         "marklogic/mlphp": "dev-master",
