@@ -1,6 +1,6 @@
 # WordPress Plugin for MarkLogic Search
 
-Very much work in progress.  
+Very much work in progress.  For more info, hit me up [on twitter](http://twitter.com/eedeebee)
 
 ### Dependencies
 
@@ -24,5 +24,15 @@ that you can use to set connection parameters based on your REST API instance.
 For now, use your admin user credentials as I haven't worked out something more
 fine grained yet.
 
-More to come soon
+Everything in flux.  More to come soon.  
+
+#### Roadmap
+
+* save_post hook to store contents in DB
+* admin button to reload all 
+* Basic search results for text-based post-types (pre_get_posts/the_posts hooks)
+* Metadata, Dates, Authors, Tags, Categories, Taxonomies
+* Design for attachments
+* Hit highlighting results?
+* Figure out how facets work
 
