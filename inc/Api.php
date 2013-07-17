@@ -13,6 +13,8 @@ class Api {
 	static private $options = null;
 	static private $logger = null;
 
+    static private $types = array('post', 'page', 'attachment');
+
 	static function option($name) {
 		if(self::$options == null) {
 			self::$options = get_option('marklogic_search');
@@ -49,21 +51,34 @@ class Api {
 		return self::$client;
 	}
 
-    static function reloadAll() {
-            self::logger()->debug("reloadAll");
+    static function clear() {
+        self::logger()->debug("clear");
 		$posts = get_posts(array(
-            'post_type' => 'post',
+            'post_type' => array('post','page'),
             'posts_per_page' => -1,
             'post_status' => 'publish'
         ));
-            self::logger()->debug("Hi");
+
+		foreach($posts as $post){
+			Document::delete($post);
+		}
+
+        return "Cleared " . count($posts) . " posts/pages";
+    }
+
+    static function reloadAll() {
+        self::logger()->debug("reloadAll");
+		$posts = get_posts(array(
+            'post_type' => array('post','page'),
+            'posts_per_page' => -1,
+            'post_status' => 'publish'
+        ));
     
 		foreach($posts as $post){
 			Document::addOrUpdate($post);
-            self::logger()->debug("Hello");
 		}
 
-        return count($posts);
+        $ret =  "Reloaded " . count($posts) . " posts/pages";
 
         /*
         $attachments = get_posts(array( 
@@ -77,8 +92,9 @@ class Api {
 			Document::addOrUpdate($post);
 		}
 
-        return count($posts) + count($attachmets);
+        $ret .=  " and " . count($attachments) " attachments";
         */
+        return  $ret;
     }
 }
 

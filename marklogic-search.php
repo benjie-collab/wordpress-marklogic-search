@@ -47,6 +47,7 @@ require('inc/hooks.php');
 
 add_action( 'admin_menu', 'MarkLogic\WordPressSearch\create_menus');
 add_action( 'wp_ajax_reload_all', 'MarkLogic\WordPressSearch\reload_all');
+add_action( 'wp_ajax_clear', 'MarkLogic\WordPressSearch\clear');
 
 function install() {
     if (version_compare( get_bloginfo('version'), '3.5', '<') ) {
@@ -87,6 +88,14 @@ function admin_settings_page() {
         array('jquery'), '1.0', true
     );
 	wp_localize_script( 'marklogic_reload_all', 'wms_reload', array(
+	    'url' => admin_url( 'admin-ajax.php' )
+	));
+    wp_enqueue_script(
+        'marklogic_clear',
+        plugins_url( 'wordpress-marklogic-search/js/clear.js' ) ,
+        array('jquery'), '1.0', true
+    );
+	wp_localize_script( 'marklogic_clear', 'wms_clear', array(
 	    'url' => admin_url( 'admin-ajax.php' )
 	));
 
@@ -136,7 +145,9 @@ function admin_settings_page() {
             <table class="form-table">
             <tr valign="top">
                 <th scope="row">&#160;</th>
-                <td><input type="button" name="Reload" value="Reload All Posts" class="button mws_reload_posts"/></td>
+                <td><input type="button" name="Reload" value="Reload All Posts" class="button mws_reload_posts"/>&#160;&#160;
+                <input type="button" name="Clear" value="Clear All Posts" class="button mws_clear"/>
+                </td>
             </tr>
             </table>
             </tr>
@@ -150,9 +161,19 @@ function admin_settings_page() {
 
 function reload_all() {
     try {
-        echo Api::reloadAll();
+        exit(Api::reloadAll());
     } catch (\Exception $e) {
-        echo $e->getMessage();
+        header("HTTP/1.0 500 Internal Server Error");
+        exit($e->getMessage());
+    }
+}
+
+function clear() {
+    try {
+        exit(Api::clear());
+    } catch (\Exception $e) {
+        header("HTTP/1.0 500 Internal Server Error");
+        exit($e->getMessage());
     }
 }
 ?>
