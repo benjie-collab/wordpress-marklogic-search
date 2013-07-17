@@ -50,14 +50,22 @@ class Api {
 	}
 
     static function reloadAll() {
+            self::logger()->debug("reloadAll");
 		$posts = get_posts(array(
+            'post_type' => 'post',
+            'posts_per_page' => -1,
             'post_status' => 'publish'
         ));
+            self::logger()->debug("Hi");
     
 		foreach($posts as $post){
 			Document::addOrUpdate($post);
+            self::logger()->debug("Hello");
 		}
 
+        return count($posts);
+
+        /*
         $attachments = get_posts(array( 
             'post_type' => 'attachment', 
             'posts_per_page' => -1, 
@@ -70,6 +78,7 @@ class Api {
 		}
 
         return count($posts) + count($attachmets);
+        */
     }
 }
 

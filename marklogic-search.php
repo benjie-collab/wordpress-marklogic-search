@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: MarkLogic Search
-Plugin URI: 
-Description: 
+Plugin URI: https://github.com/marklogic/wordpress-marklogic-search
+Description: Replacement (and improvement over) default WordPress search 
 Version: 0.0.0
 Author: Eric Bloch
 Author URI: https://github.com/eedeebee
@@ -46,10 +46,11 @@ spl_autoload_register(function($class){
 require('inc/hooks.php');
 
 add_action( 'admin_menu', 'MarkLogic\WordPressSearch\create_menus');
+add_action( 'wp_ajax_reload_all', 'MarkLogic\WordPressSearch\reload_all');
 
 function install() {
     if (version_compare( get_bloginfo('version'), '3.5', '<') ) {
-        deactivate_plugins( basename( __FILE ) );
+        deactivate_plugins( basename( __FILE__ ) );
     }
 
     update_option( 'marklogic_search', array(
@@ -68,8 +69,8 @@ function install() {
 function create_menus() {
 
     add_menu_page('MarkLogic Search Settings', 'MarkLogic Search',
-        'manage_options', __FILE__, 'MarkLogic\WordPressSearch\admin_settings_page',
-        plugins_url( '/images/marklogic-16x16.jpg', __FILE__ ) );
+        'manage_options', 'marklogic_search', 'MarkLogic\WordPressSearch\admin_settings_page',
+        plugins_url( 'wordpress-marklogic-search/images/marklogic-16x16.jpg' ) );
 
 }
 
@@ -77,14 +78,17 @@ function admin_settings_page() {
 
     wp_enqueue_script(
         'marklogic_search_connection_test',
-        plugin_dir_url(__FILE__) . 'js/connection-test.js',
+        plugins_url( 'wordpress-marklogic-search/js/connection-test.js' ) ,
         array('jquery'), '1.0', true
     );
     wp_enqueue_script(
         'marklogic_reload_all',
-        plugin_dir_url(__FILE__) . 'js/reload.js',
+        plugins_url( 'wordpress-marklogic-search/js/reload.js' ) ,
         array('jquery'), '1.0', true
     );
+	wp_localize_script( 'marklogic_reload_all', 'wms_reload', array(
+	    'url' => admin_url( 'admin-ajax.php' )
+	));
 
     $o = get_option( 'marklogic_search' );
 
@@ -120,7 +124,7 @@ function admin_settings_page() {
                 <th scope="row">&#160;</th>
                 <td><input type="submit" name="Save" value="Save Options" class="button-primary"/>&#160;&#160;
                 <input type="button" name="Test" value="Test Options" class="button mws_connection_test" 
-                    data-url="<?php echo plugins_url('inc/connection-test.php', __FILE__); ?>"/></td>
+                    data-url="<?php echo plugins_url('wordpress-marklogic-search/inc/connection-test.php'); ?>"/></td>
             </tr>
             <tr valign="top">
                 <th scope="row">&#160;</th>
@@ -132,8 +136,7 @@ function admin_settings_page() {
             <table class="form-table">
             <tr valign="top">
                 <th scope="row">&#160;</th>
-                <td><input type="button" name="Reload" value="Reload All Posts" class="button mws_reload_posts" 
-                    data-url="<?php echo plugins_url('inc/reload-all.php', __FILE__); ?>"/></td>
+                <td><input type="button" name="Reload" value="Reload All Posts" class="button mws_reload_posts"/></td>
             </tr>
             </table>
             </tr>
@@ -145,4 +148,11 @@ function admin_settings_page() {
     
 }
 
+function reload_all() {
+    try {
+        echo Api::reloadAll();
+    } catch (\Exception $e) {
+        echo $e->getMessage();
+    }
+}
 ?>
