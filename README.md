@@ -4,7 +4,7 @@ Very much work in progress.  For more info, hit me up [on twitter](http://twitte
 
 ### Dependencies
 
-* PHP 3.5+ in a web server (I've only tried Apache 2.2).
+* PHP 5.3+ in a web server (I've only tried Apache 2.2).
 * WordPress
 * Composer
 * MLPHP
