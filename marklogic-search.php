@@ -59,7 +59,8 @@ function install() {
         'port' => 8123,
         'user' => 'admin',
         'password' => 'admin',
-        'auth' => 'digest'
+        'auth' => 'digest',
+        'enabled' => false
     )) ;
 }
 
@@ -105,6 +106,7 @@ function admin_settings_page() {
     $o['user'] = isset($_POST['mluser']) ? $_POST['mluser'] : $o['user'];
     $o['port'] = isset($_POST['port']) ? $_POST['port'] : $o['port'];
     $o['password'] = isset($_POST['mlpassword']) ? $_POST['mlpassword'] : $o['password'];
+    $o['enabled'] = (isset($_POST['enabled']) && $_POST['enabled'] == 'on') ? 'on' : false;
 
     ?>
         <div class="wrap">
@@ -141,7 +143,7 @@ function admin_settings_page() {
             </table>
             </form>
             <h3>Indexing</h3>
-            <form class="mws_connection_settings" method="POST" action="">
+            <form class="mws_indexing_settings" method="POST" action="">
             <table class="form-table">
             <tr valign="top">
                 <th scope="row">&#160;</th>
@@ -150,7 +152,18 @@ function admin_settings_page() {
                 </td>
             </tr>
             </table>
+            <h3>Search</h3>
+            <form class="mws_search_settings" method="POST" action="">
+            <table class="form-table">
+            <tr valign="top">
+                <th scope="row"><label for="enabled">&#160;</label></th>
+                <td><input name="enabled" <?php echo $o['enabled'] == 'on' ? 'checked' : ''; ?> type="checkbox"/>&#160;Enable MarkLogic Search</td> 
             </tr>
+            <tr valign="top">
+                <th scope="row">&#160;</th>
+                <td><input type="submit" name="Save" value="Save Options" class="button-primary"/></td>
+            </tr>
+            </table>
         </div>
     <?php
 
