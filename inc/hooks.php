@@ -55,4 +55,4 @@ class Hooks {
 }
 
 new Hooks();
-?>
+

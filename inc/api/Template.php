@@ -8,4 +8,4 @@ class Template{
 		return $wp_query->facets;
 	}
 }
-?>
+

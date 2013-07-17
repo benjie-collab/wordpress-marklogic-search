@@ -189,4 +189,3 @@ function clear() {
         exit($e->getMessage());
     }
 }
-?>

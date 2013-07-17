@@ -150,4 +150,4 @@ class Indexer{
 		$type->addDocument(new \Elastica_Document($post->ID, $data));		
 	}
 }
-?>
+

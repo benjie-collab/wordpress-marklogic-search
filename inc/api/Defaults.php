@@ -20,4 +20,4 @@ class Defaults{
 		return array_unique($taxes); 
 	}
 }
-?>
+

@@ -28,4 +28,4 @@ try {
     
 echo "Success (". $results . " documents directly under /)";
 
-?>
+
