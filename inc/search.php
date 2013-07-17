@@ -11,13 +11,13 @@ class Search{
 
 	function __construct(){
 		add_action('pre_get_posts', array(&$this, 'do_search'));
-		// add_action('the_posts', array(&$this, 'process_search'));
+		add_action('the_posts', array(&$this, 'process_search'));
 	}
 
 	function do_search($wp_query){
 		$this->searched = false;
 
-		if(!$wp_query->is_main_query() || !is_search() || is_admin() || !Api::option('enable')){
+		if(!$wp_query->is_main_query() || !is_search() || is_admin() || !Api::option('enabled')){
 			return;
 		}
 
@@ -46,7 +46,6 @@ class Search{
 		$this->searched = true;	
 	}
 
-    /*
 	function process_search($posts){
 		global $wp_query;
 
@@ -67,7 +66,6 @@ class Search{
 	function sort_posts($a, $b){
 		return $this->scores[$a->ID] > $this->scores[$b->ID] ? -1 : 1;
 	}
-    */
 }
 
 new Search();

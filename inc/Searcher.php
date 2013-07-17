@@ -4,7 +4,6 @@ namespace MarkLogic\WordPressSearch;
 class Searcher{
 
 	public function query($search, $pageIndex, $size, $facets = array()) {
-    }
 
 		$shoulds = array();
 		$musts = array();

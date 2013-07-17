@@ -45,6 +45,8 @@ spl_autoload_register(function($class){
 
 require('inc/hooks.php');
 
+require('inc/search.php');
+
 add_action( 'admin_menu', 'MarkLogic\WordPressSearch\create_menus');
 add_action( 'wp_ajax_reload_all', 'MarkLogic\WordPressSearch\reload_all');
 add_action( 'wp_ajax_clear', 'MarkLogic\WordPressSearch\clear');
