@@ -71,7 +71,7 @@ function create_menus() {
 
     add_menu_page('MarkLogic Search Settings', 'MarkLogic Search',
         'manage_options', 'marklogic_search', 'MarkLogic\WordPressSearch\admin_settings_page',
-        plugins_url( 'wordpress-marklogic-search/images/marklogic-16x16.jpg' ) );
+        plugins_url( 'wordpress-marklogic-search/images/marklogic-16x16.png' ) );
 
 }
 
