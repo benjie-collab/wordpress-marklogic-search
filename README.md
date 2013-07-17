@@ -28,8 +28,8 @@ Everything in flux.  More to come soon.
 
 #### Roadmap
 
-* save_post hook to store contents in DB
-* admin button to reload all 
+* ~~save_post hook to store contents in DB~~
+* ~~admin button to reload all ~~
 * Basic search results for text-based post-types (pre_get_posts/the_posts hooks)
 * Metadata, Dates, Authors, Tags, Categories, Taxonomies
 * Design for attachments
