@@ -14,6 +14,15 @@ class Api {
 	static private $logger = null;
 
     static private $types = array('post', 'page', 'attachment');
+    static private $tax = array();
+
+    static function types() {
+        return self::$types;
+    }
+
+    static function taxonomies() {
+        return self::$tax;
+    }
 
 	static function option($name) {
 		if(self::$options == null) {

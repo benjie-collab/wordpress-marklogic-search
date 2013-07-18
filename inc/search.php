@@ -26,7 +26,7 @@ class Search{
 		$this->page = $wp_query->query_vars['paged'] > 0 ? $wp_query->query_vars['paged'] - 1 : 0;
 
 		if(!isset($wp_query->query_vars['posts_per_page'])){
-			$wp_query->query_vars['posts_per_page'] = get_option('posts_per_page');
+			$wp_query->query_vars['posts_per_page'] = get_option('posts_per_page'); // XXX FIXME - why is this option needed?
 		}
 
 		$results = Searcher::query($search, $this->page, $wp_query->query_vars['posts_per_page'], $wp_query->query_vars);

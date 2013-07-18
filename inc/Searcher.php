@@ -1,13 +1,16 @@
 <?php
 namespace MarkLogic\WordPressSearch;
 
+use MarkLogic\MLPHP;
+
 class Searcher{
+
+    static function esc($s) {
+        return htmlentities($s, ENT_COMPAT, "UTF-8");
+    }
 
 	public function query($search, $pageIndex, $size, $facets = array()) {
 
-		$shoulds = array();
-		$musts = array();
-		$filters = array();
 		$bytype = null;
 
 		foreach(Api::types() as $type){
@@ -17,6 +20,7 @@ class Searcher{
 			}
 		}
 
+        /*
 		foreach(Api::taxonomies() as $tax){
 			if($search){
 				$score = Api::score('tax', $tax);
@@ -100,15 +104,44 @@ class Searcher{
 		}
 
 		$args = \apply_filters('es_query_args', $args);
+        */
 
-		$query =new \Elastica_Query($args);
-		$query->setFrom($pageIndex * $size);
-		$query->setSize($size);
-		$query->setFields(array('id'));
+        $options = new MLPHP\Options(Api::client());
+            $content_constraint = new MLPHP\WordConstraint("content", "content", "", null, null);
+            $options->addConstraint($content_constraint);
+            $title_constraint = new MLPHP\WordConstraint("title", "title", "", null, null);
+            $options->addConstraint($title_constraint);
+
+        try {
+            $options->write("wms");
+        } catch (\Exception $ex) {
+            Api::logger()->error($ex);
+        }
+            
+        $query = new MLPHP\Search(Api::client(), $pageIndex * $size, $size);
+
+        $structure = '
+            <query xmlns="http://marklogic.com/appservices/search">
+                <term-query>
+                    <text>'.self::esc($search).'</text>
+                </term-query>
+            </query>
+        ';
 
 		//Possibility to modify the query after it was built
-		\apply_filters('elastica_query', $query);
+		\apply_filters('mlphp_query', $query);
 
+        $results = null;
+
+        try {
+            $results = $query->retrieve($structure, array(), true);
+        } catch (\Exception $ex) {
+            Api::logger()->error($ex);
+            return null;
+        }
+
+        
+        /*
 		try{
 			$index = Api::index(false);
 
@@ -125,14 +158,25 @@ class Searcher{
 		}catch(\Exception $ex){
 			return null;
 		}
+        */
 
+        $ids = array();
+        $scores = array();
+
+        foreach ($results->getResults() as $result) {
+            $id = substr($result->getURI(), 1);
+            $ids[] = $id;
+            $scores[$id] = $result->getScore();
+        }
 
 		$val = array(
-			'total' => $response->getTotalHits(),
-			'scores' => array(),
-			'facets' => array()
+			'total' => $results->getTotal(),
+			'scores' => $scores,
+			'facets' => array(), 
+            'ids' => $ids
 		);
 
+        /*
 		foreach($response->getFacets() as $name => $facet){
 			foreach($facet['terms'] as $term){
 				$val['facets'][$name][$term['term']] = $term['count'];
@@ -147,11 +191,12 @@ class Searcher{
 		foreach($response->getResults() as $result){
 			$val['scores'][$result->getId()] = $result->getScore();
 		}
+        */
 
-		$val['ids'] = array_keys($val['scores']);
+		// $val['ids'] = array_keys($val['scores']);
 
 		//Possibility to alter the results
-		return \apply_filters('elastica_results', $val, $response);
+		return \apply_filters('marklogic_search_results', $val, $results);
 	}
 
 	protected function facet($name, $facets, $type, &$musts, &$filters, $translate = array()){
