@@ -57,7 +57,8 @@ class Search{
 			$wp_query->query_vars['paged'] = $this->page + 1;
 			$wp_query->query_vars['s'] = $_GET['s'];
 
-			usort($posts, array(&$this, 'sort_posts'));
+            if ($this->total > 0) 
+			    usort($posts, array(&$this, 'sort_posts'));
 		}
 
 		return $posts;

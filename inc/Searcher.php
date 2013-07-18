@@ -114,27 +114,47 @@ class Searcher{
 
         try {
             $options->write("wms");
+            Api::logger()->debug("Wrote wms options");
         } catch (\Exception $ex) {
             Api::logger()->error($ex);
+            // TODO: What ?
         }
             
         $query = new MLPHP\Search(Api::client(), $pageIndex * $size, $size);
 
+        // For now, just search with in the content and title only
+
         $structure = '
             <query xmlns="http://marklogic.com/appservices/search">
-                <term-query>
-                    <text>'.self::esc($search).'</text>
-                </term-query>
+                <or-query>
+                    <word-constraint-query>
+                        <constraint-name>content</constraint-name>
+                        <text>'.self::esc($search).'</text>
+                    </word-constraint-query>
+                    <word-constraint-query>
+                        <constraint-name>title</constraint-name>
+                        <weight>10</weight>
+                        <text>'.self::esc($search).'</text>
+                    </word-constraint-query>
+                </or-query>
             </query>
         ';
+
+        Api::logger()->debug($structure);
+
+		//Possibility to modify the query after it was built
+		\apply_filters('mlphp_structure', $structure);
 
 		//Possibility to modify the query after it was built
 		\apply_filters('mlphp_query', $query);
 
+
         $results = null;
 
         try {
-            $results = $query->retrieve($structure, array(), true);
+            $results = $query->retrieve($structure, array(
+                'options' => 'wms'
+            ), true);
         } catch (\Exception $ex) {
             Api::logger()->error($ex);
             return null;
@@ -168,6 +188,8 @@ class Searcher{
             $ids[] = $id;
             $scores[$id] = $result->getScore();
         }
+
+        Api::logger()->debug("Total : " . $results->getTotal());
 
 		$val = array(
 			'total' => $results->getTotal(),

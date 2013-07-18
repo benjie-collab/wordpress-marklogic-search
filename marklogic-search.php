@@ -108,7 +108,9 @@ function admin_settings_page() {
     $o['user'] = isset($_POST['mluser']) ? $_POST['mluser'] : $o['user'];
     $o['port'] = isset($_POST['port']) ? $_POST['port'] : $o['port'];
     $o['password'] = isset($_POST['mlpassword']) ? $_POST['mlpassword'] : $o['password'];
-    $o['enabled'] = (isset($_POST['enabled']) && $_POST['enabled'] == 'on') ? 'on' : false;
+    if (isset($_POST['foo'])) {
+        $o['enabled'] = (isset($_POST['enabled']) && $_POST['enabled'] == 'on') ? 'on' : false;
+    }
 
     ?>
         <div class="wrap">
@@ -165,6 +167,7 @@ function admin_settings_page() {
                 <th scope="row">&#160;</th>
                 <td><input type="submit" name="Save" value="Save Options" class="button-primary"/></td>
             </tr>
+            <input name="foo" type="hidden" value="foo"/>
             </table>
         </div>
     <?php

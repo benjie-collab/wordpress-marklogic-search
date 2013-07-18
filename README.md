@@ -38,4 +38,5 @@ Everything in flux.  More to come soon.
 1. Are there hooks for when metadata (authors, tags) change and update docs?
 1. Design for attachments
 1. Hit highlighting results?
+1. Refactor admin (potentially) long running tasks (reload-all, clear-all) to be like f-e plugin (or other)
 
