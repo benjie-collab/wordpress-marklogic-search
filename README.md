@@ -28,11 +28,14 @@ Everything in flux.  More to come soon.
 
 #### Roadmap
 
-* ~~save_post hook to store contents in DB~~
-* ~~admin button to reload all ~~
-* Basic search results for text-based post-types (pre_get_posts/the_posts hooks)
-* Metadata, Dates, Authors, Tags, Categories, Taxonomies
-* Design for attachments
-* Hit highlighting results?
-* Figure out how facets work
+1. ~~save_post hook to store contents in DB~~
+1. ~~admin button to reload all ~~
+1. ~~Basic search results for text-based post-types (pre_get_posts/the_posts hooks)~~
+1. Figure out how facets work
+1. Plugin cleanup/refactoring
+1. Metadata, Dates, Authors, Tags, Categories, Taxonomies
+1. Admin for specifying which posts should be indexed
+1. Are there hooks for when metadata (authors, tags) change and update docs?
+1. Design for attachments
+1. Hit highlighting results?
 
