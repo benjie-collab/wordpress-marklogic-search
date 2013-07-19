@@ -29,7 +29,7 @@ Everything in flux.  More to come soon.
 #### Roadmap
 
 1. ~~save_post hook to store contents in DB~~
-1. ~~admin button to reload all ~~
+1. ~~admin button to reload all~~
 1. ~~Basic search results for text-based post-types (pre_get_posts/the_posts hooks)~~
 1. Use the_excerpt hook to display hit highlighted snippets in place of excerpts
 1. Use the_post hook to display hit highlighted content in place of regular content. (maybe same for author, title, etc).
