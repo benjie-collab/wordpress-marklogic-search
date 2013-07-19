@@ -107,17 +107,34 @@ class Searcher{
         */
 
         $options = new MLPHP\Options(Api::client());
+            $term = new MLPHP\Term('all-results');
+            $term->setTermOptions(array('wildcarded'));
+            $options->setTerm($term);
+
             $content_constraint = new MLPHP\WordConstraint("content", "content", "", null, null);
+            $content_constraint->setTermOptions(array(
+                'wildcarded'
+            ));
             $options->addConstraint($content_constraint);
+
             $title_constraint = new MLPHP\WordConstraint("title", "title", "", null, null);
+            $title_constraint->setTermOptions(array(
+                'wildcarded'
+            ));
             $options->addConstraint($title_constraint);
+
+            $author_constraint = new MLPHP\WordConstraint("author", "display_name", "", null, null);
+            $author_constraint->setTermOptions(array(
+                'wildcarded'
+            ));
+            $options->addConstraint($author_constraint);
 
         try {
             $options->write("wms");
             Api::logger()->debug("Wrote wms options");
         } catch (\Exception $ex) {
             Api::logger()->error($ex);
-            // TODO: What ?
+            return null;
         }
             
         $query = new MLPHP\Search(Api::client(), $pageIndex * $size, $size);
@@ -140,10 +157,10 @@ class Searcher{
             </query>
         ';
 
-        Api::logger()->debug($structure);
+        // Api::logger()->debug($structure);
 
 		//Possibility to modify the query after it was built
-		\apply_filters('mlphp_structure', $structure);
+		// \apply_filters('mlphp_structure', $structure);
 
 		//Possibility to modify the query after it was built
 		\apply_filters('mlphp_query', $query);
@@ -152,9 +169,9 @@ class Searcher{
         $results = null;
 
         try {
-            $results = $query->retrieve($structure, array(
-                'options' => 'wms'
-            ), true);
+            $results = $query->retrieve($search, array(
+                'options' => 'wms' 
+            ));
         } catch (\Exception $ex) {
             Api::logger()->error($ex);
             return null;

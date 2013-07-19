@@ -31,10 +31,17 @@ Everything in flux.  More to come soon.
 1. ~~save_post hook to store contents in DB~~
 1. ~~admin button to reload all ~~
 1. ~~Basic search results for text-based post-types (pre_get_posts/the_posts hooks)~~
-1. Figure out how facets work
+1. Use the_excerpt hook to display hit highlighted snippets in place of excerpts
+1. Use the_post hook to display hit highlighted content in place of regular content. (maybe same for author, title, etc).
+1. Add support for forum posts
+1. Figure out how facets work in WP
+    * For www, facet on 
+        * user defined time buckets (last month, 1-6 mos, 6-12 mos, > 1 year ago) ?
+        * Author?
+        * Post type (blog post, forum post, others?)
 1. Plugin cleanup/refactoring
 1. Metadata, Dates, Authors, Tags, Categories, Taxonomies
-1. Admin for specifying which posts should be indexed
+1. Admin for specifying which posts types (and other stuff) should be indexed
 1. Are there hooks for when metadata (authors, tags) change and update docs?
 1. Design for attachments
 1. Hit highlighting results?

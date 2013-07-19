@@ -31,7 +31,7 @@ class Search{
 
 		$results = Searcher::query($search, $this->page, $wp_query->query_vars['posts_per_page'], $wp_query->query_vars);
 
-		if($results == null){
+		if ($results == null || $results['total'] < 1){
 			return null;
 		}
 
