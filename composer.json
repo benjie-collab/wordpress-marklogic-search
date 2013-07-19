@@ -20,6 +20,6 @@
         "ccampbell/chromephp": "*"
     },
     "autoload": {
-        "psr-0": { "MarkLogic\\WordPressSearch": "search/" }
+        "psr-0": { "MarkLogic\\WordPressSearch": "src/" }
     }
 }

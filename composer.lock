@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "fbcd6852e928dc20fd53eca2dc43f1a9",
+    "hash": "1fe241db21c3b49d66ce1506d02cd2dd",
     "packages": [
         {
             "name": "marklogic/mlphp",
