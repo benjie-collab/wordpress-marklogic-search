@@ -82,7 +82,7 @@ class OptionPage extends AutoHook
     {
         add_menu_page(
             __('MarkLogic Search Settings', 'marklogicws'),
-            __('MarkLogic Search', 'marklogicws'),
+            __('MarkLogic', 'marklogicws'),
             'manage_options',
             'marklogic-search',
             array($this, 'pageCallback'),
