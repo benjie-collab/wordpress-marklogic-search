@@ -28,20 +28,14 @@ License:
 
 namespace MarkLogic\WordPressSearch;
 
-require(__DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
+require_once __DIR__ . '/vendor/autoload.php';
 
 register_activation_hook( __FILE__, 'MarkLogic\WordPressSearch\install' );
 
+var_dump(class_exists('MarkLogic\\WordPressSearch\\Document', true));
+die;
+
 use MarkLogic\MLPHP;
-
-spl_autoload_register(function($class){
-    $path = str_replace('MarkLogic\\WordPressSearch\\', '', $class);
-    $path = str_replace(array('_', "\\"), DIRECTORY_SEPARATOR, $path);
-
-    if (file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . $path . '.php')) {
-        require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . $path . '.php');
-    }
-});
 
 require('inc/hooks.php');
 

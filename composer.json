@@ -13,11 +13,13 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "marklogic/mlphp": "dev-master",
+        "marklogic/mlphp": "dev-master"
+    },
+    "require-dev": {
         "monolog/monolog": "*",
         "ccampbell/chromephp": "*"
     },
     "autoload": {
-        "psr-0": { "MarkLogic\\WordPressSearch": "lib/" }
+        "psr-0": { "MarkLogic\\WordPressSearch": "src/" }
     }
 }
