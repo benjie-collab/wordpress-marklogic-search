@@ -23,6 +23,8 @@ class Plugin extends \Pimple
 {
     const OPTION = 'marklogic_search';
 
+    private static $instance = null;
+
     /**
      * {@inheritdoc}
      */
@@ -56,9 +58,37 @@ class Plugin extends \Pimple
         });
     }
 
+    /**
+     * A helper to get options.
+     *
+     * @since   1.0
+     * @access  public
+     * @param   string $key
+     * @param   mixed $default
+     * @return  mixed
+     */
     public function option($key, $default=null)
     {
         $opts = get_option(static::OPTION, array());
         return array_key_exists($key, $opts) ? $opts[$key] : $default;
+    }
+
+    /**
+     * We need to share the same instance of this throughout the plugin --
+     * specifically for subclasses of AutoHook. This is a helper to do that.
+     *
+     * XXX global state, sad.
+     *
+     * @since   1.0
+     * @access  public
+     * @return  MarkLogic\WordPressSearch\Plugin
+     */
+    public static function instance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
     }
 }
