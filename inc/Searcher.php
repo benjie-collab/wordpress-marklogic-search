@@ -199,17 +199,23 @@ class Searcher{
 
         $ids = array();
         $scores = array();
+        $snippets = array();
 
         foreach ($results->getResults() as $result) {
             $id = substr($result->getURI(), 1);
             $ids[] = $id;
             $scores[$id] = $result->getScore();
+            $snippets[$id] = array();
+            foreach ($result->getMatches() as $match) {
+                $snippets[$id][] = $match;
+            }
         }
 
         Api::logger()->debug("Total : " . $results->getTotal());
 
 		$val = array(
 			'total' => $results->getTotal(),
+			'snippets' => $snippets,
 			'scores' => $scores,
 			'facets' => array(), 
             'ids' => $ids
@@ -237,6 +243,11 @@ class Searcher{
 		//Possibility to alter the results
 		return \apply_filters('marklogic_search_results', $val, $results);
 	}
+
+	public function highlight($search, $contentType, $content) {
+        $query = new MLPHP\Search(Api::client());
+        return $query->highlight($content, $contentType, "hit", $search);
+    }
 
 	protected function facet($name, $facets, $type, &$musts, &$filters, $translate = array()){
 		if(isset($facets[$name]) && is_array($facets[$name])){

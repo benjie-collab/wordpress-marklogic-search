@@ -16,6 +16,27 @@ class Document {
         return htmlentities($s, ENT_COMPAT, "UTF-8");
     }
 
+    static function tidy($s) {
+        $t = new \tidy();
+        $t->parseString($s, array(
+            'input-encoding'   => 'utf8',
+            'output-encoding'  => 'utf8',
+            'output-xml'       => 'true'
+/*
+            'show-body-only'   => 'true',
+            'add-xml-space'    => 'true',
+            'doctype'          => 'omit',
+            'numeric-entities' => 'yes', 
+            'add-xml-decl' => false
+*/
+
+        ), 'utf8');
+        $t->cleanRepair();
+
+        return $t;
+    }
+
+
     static function addOrUpdate($post) {
 
         $uri = "/" . $post->ID;
@@ -26,9 +47,16 @@ class Document {
         $doc = new MLPHP\XMLDocument(Api::client(), $uri);
 
         $root = new \SimpleXMLElement('<doc/>');
+        $t = self::tidy($post->post_content);
+        Api::logger()->debug("tidy  : " . $t);
+        // $t = html_entity_decode($t);
+        // Api::logger()->debug("hed  : " . $t);
+        // $xhtml = new \SimpleXMLElement($t);
+        // Api::logger()->debug("xhtml  : " . $xhtml);
 
         $root->addChild("id", $post->ID);
         $root->addChild("content", self::esc($post->post_content));
+        // $root->addChild("content-tidy", self::tidy($post->post_content));
         $tags = $root->addChild("tags");
         $post_tags = get_the_tags($post->ID);
         if ($post_tags) {

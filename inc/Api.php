@@ -36,7 +36,7 @@ class Api {
 		if (self::$logger == null) {
             self::$logger = new \Monolog\Logger('marklogic_search');
             self::$logger->pushHandler(new StreamHandler('/tmp/debug.log', Logger::DEBUG));
-            self::$logger->pushHandler(new ChromePHPHandler());
+            // self::$logger->pushHandler(new ChromePHPHandler());
         }
         return self::$logger;
     }
