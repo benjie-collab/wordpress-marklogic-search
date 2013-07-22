@@ -29,11 +29,13 @@ Everything in flux.  More to come soon.
 #### Roadmap
 
 1. ~~save_post hook to store contents in DB~~
-1. ~~admin button to reload all ~~
+1. ~~admin button to reload all~~
 1. ~~Basic search results for text-based post-types (pre_get_posts/the_posts hooks)~~
-1. Use the_excerpt hook to display hit highlighted snippets in place of excerpts
+1. search_form Use http://stackoverflow.com/questions/1267044/css-for-text-background-in-text-input-element to display 
+Powered by MarkLogic and also modifiy search_query to display current search string
+1. Use the_excerpt hook to display hit highlighted snippets in place of excerpts - figure out what to do about html/text snippets
 1. Use the_post hook to display hit highlighted content in place of regular content. (maybe same for author, title, etc).
-1. Add support for forum posts
+1. Add support for comments and forum posts
 1. Figure out how facets work in WP
     * For www, facet on 
         * user defined time buckets (last month, 1-6 mos, 6-12 mos, > 1 year ago) ?
