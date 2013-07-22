@@ -10,14 +10,18 @@
             "name": "Eric Bloch",
             "email": "eric.bloch@gmail.com"
         }
+        ,
+        {
+            "name": "Chris Davis",
+            "email": "chris@pmg.co"
+        }
     ],
     "require": {
         "php": ">=5.3.0",
         "marklogic/mlphp": "dev-master"
     },
     "require-dev": {
-        "monolog/monolog": "*",
-        "ccampbell/chromephp": "*"
+        "monolog/monolog": "*"
     },
     "autoload": {
         "psr-0": { "MarkLogic\\WordPressSearch": "src/" }

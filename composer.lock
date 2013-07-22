@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "1fe241db21c3b49d66ce1506d02cd2dd",
+    "hash": "948ee3482d419b45ce6d0a5c291696c3",
     "packages": [
         {
             "name": "marklogic/mlphp",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/marklogic/mlphp.git",
-                "reference": "f0ca12427e2f965f8570969fb57f2d549dec1914"
+                "reference": "d967fbbcda4109eff190a176e122ca7879f6121c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marklogic/mlphp/zipball/f0ca12427e2f965f8570969fb57f2d549dec1914",
-                "reference": "f0ca12427e2f965f8570969fb57f2d549dec1914",
+                "url": "https://api.github.com/repos/marklogic/mlphp/zipball/d967fbbcda4109eff190a176e122ca7879f6121c",
+                "reference": "d967fbbcda4109eff190a176e122ca7879f6121c",
                 "shasum": ""
             },
             "require": {
@@ -56,7 +56,7 @@
                 "nosql",
                 "search"
             ],
-            "time": "2013-07-18 20:17:12"
+            "time": "2013-07-20 02:59:10"
         },
         {
             "name": "psr/log",
@@ -98,49 +98,6 @@
         }
     ],
     "packages-dev": [
-        {
-            "name": "ccampbell/chromephp",
-            "version": "4.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ccampbell/chromephp.git",
-                "reference": "4.1.0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ccampbell/chromephp/zipball/4.1.0",
-                "reference": "4.1.0",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "ChromePhp": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Craig Campbell",
-                    "email": "iamcraigcampbell@gmail.com",
-                    "homepage": "http://craig.is",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Log variables to the Chrome console (via Chrome Logger Google Chrome extension).",
-            "homepage": "http://github.com/ccampbell/chromephp",
-            "keywords": [
-                "log",
-                "logging"
-            ],
-            "time": "2013-06-26 03:44:33"
-        },
         {
             "name": "monolog/monolog",
             "version": "1.5.0",

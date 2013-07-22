@@ -32,14 +32,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 register_activation_hook( __FILE__, 'MarkLogic\WordPressSearch\install' );
 
-var_dump(class_exists('MarkLogic\\WordPressSearch\\Document', true));
-die;
-
 use MarkLogic\MLPHP;
 
-require('inc/hooks.php');
+require('src/MarkLogic/WordPressSearch/hooks.php');
 
-require('inc/search.php');
+require('src/MarkLogic/WordPressSearch/search.php');
 
 add_action( 'admin_menu', 'MarkLogic\WordPressSearch\create_menus');
 add_action( 'wp_ajax_reload_all', 'MarkLogic\WordPressSearch\reload_all');
