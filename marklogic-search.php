@@ -39,8 +39,9 @@ require('src/MarkLogic/WordPressSearch/hooks.php');
 require('src/MarkLogic/WordPressSearch/search.php');
 
 add_action( 'admin_menu', 'MarkLogic\WordPressSearch\create_menus');
-add_action( 'wp_ajax_reload_all', 'MarkLogic\WordPressSearch\reload_all');
-add_action( 'wp_ajax_clear', 'MarkLogic\WordPressSearch\clear');
+add_action( 'wp_ajax_wms_reload_all', 'MarkLogic\WordPressSearch\reload_all');
+add_action( 'wp_ajax_wms_clear', 'MarkLogic\WordPressSearch\clear');
+add_action( 'wp_ajax_wms_connection_test', 'MarkLogic\WordPressSearch\connection_test');
 
 function install() {
     if (version_compare( get_bloginfo('version'), '3.5', '<') ) {
@@ -72,7 +73,7 @@ function create_menus() {
 function admin_settings_page() {
 
     wp_enqueue_script(
-        'marklogic_search_connection_test',
+        'marklogic_connection_test',
         plugins_url( 'wordpress-marklogic-search/js/connection-test.js' ) ,
         array('jquery'), '1.0', true
     );
@@ -81,15 +82,18 @@ function admin_settings_page() {
         plugins_url( 'wordpress-marklogic-search/js/reload.js' ) ,
         array('jquery'), '1.0', true
     );
-	wp_localize_script( 'marklogic_reload_all', 'wms_reload', array(
-	    'url' => admin_url( 'admin-ajax.php' )
-	));
     wp_enqueue_script(
         'marklogic_clear',
         plugins_url( 'wordpress-marklogic-search/js/clear.js' ) ,
         array('jquery'), '1.0', true
     );
+	wp_localize_script( 'marklogic_reload_all', 'wms_reload', array(
+	    'url' => admin_url( 'admin-ajax.php' )
+	));
 	wp_localize_script( 'marklogic_clear', 'wms_clear', array(
+	    'url' => admin_url( 'admin-ajax.php' )
+	));
+	wp_localize_script( 'marklogic_connection_test', 'wms_connection_test', array(
 	    'url' => admin_url( 'admin-ajax.php' )
 	));
 
@@ -129,8 +133,7 @@ function admin_settings_page() {
             <tr valign="top">
                 <th scope="row">&#160;</th>
                 <td><input type="submit" name="Save" value="Save Options" class="button-primary"/>&#160;&#160;
-                <input type="button" name="Test" value="Test Options" class="button mws_connection_test" 
-                    data-url="<?php echo plugins_url('wordpress-marklogic-search/inc/connection-test.php'); ?>"/></td>
+                <input type="button" name="Test" value="Test Options" class="button mws_connection_test"/></td>
             </tr>
             <tr valign="top">
                 <th scope="row">&#160;</th>
@@ -184,4 +187,25 @@ function clear() {
         header("HTTP/1.0 500 Internal Server Error");
         exit($e->getMessage());
     }
+}
+
+function connection_test() {
+    try {
+        $client = new MLPHP\RESTClient(
+            $_POST['host'],
+            $_POST['port'],
+            '',
+            'v1',
+            $_POST['mluser'],
+            $_POST['mlpassword'],
+            "digest"
+        );
+    
+        $search = new MLPHP\Search($client);
+        $search->setDirectory('/');
+        $results = $search->retrieve("")->getTotal();
+    } catch (\Exception $e) {
+        exit($e->getMessage());
+    }
+    exit("Success (". $results . " documents directly under /)");
 }
