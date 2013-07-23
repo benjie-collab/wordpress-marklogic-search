@@ -74,6 +74,7 @@ Everything in flux.  More to come soon.
 - Add more functionality
 
 0. Attachments
+1. Search term completion
 
 #### 2.0 
 

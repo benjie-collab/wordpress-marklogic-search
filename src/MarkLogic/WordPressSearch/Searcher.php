@@ -11,123 +11,37 @@ class Searcher{
 
 	public function query($search, $pageIndex, $size, $facets = array()) {
 
-		$bytype = null;
-
-		foreach(Api::types() as $type){
-			if($type == $search){
-				$bytype = $search;
-				$search = null;
-			}
-		}
-
-        /*
-		foreach(Api::taxonomies() as $tax){
-			if($search){
-				$score = Api::score('tax', $tax);
-
-				if($score > 0){
-					$shoulds[] = array('text' => array( $tax => array(
-						'query' => $search,
-						'boost' => $score
-					)));
-				}
-			}
-
-			self::facet($tax, $facets, 'term', $musts, $filters);
-		}
-
-		$args = array();
-
-		$numeric = Api::option('numeric');
-
-		foreach(Api::fields() as $field){
-			if($search){
-				$score = Api::score('field', $field);
-
-				if($score > 0){
-					$shoulds[] = array('text' => array($field => array(
-						'query' => $search,
-						'boost' => $score
-					)));
-				}
-			}
-
-			if(isset($numeric[$field]) && $numeric[$field]){
-				$ranges = Api::ranges($field);
-
-				if(count($ranges) > 0 ){
-					self::facet($field, $facets, 'range', $musts, $filters, $ranges);
-				}
-			}
-		}
-
-		if(count($shoulds) > 0){
-			$args['query']['bool']['should'] = $shoulds;
-		}
-
-		if(count($filters) > 0){
-			$args['filter']['bool']['should'] = $filters;
-		}
-
-		if(count($musts) > 0){
-			$args['query']['bool']['must'] = $musts;
-		}
-
-		foreach(Api::facets() as $facet){
-			$args['facets'][$facet]['terms']['field'] = $facet;
-
-			if(count($filters) > 0){
-				foreach($filters as $filter){
-					if(!$filter['term'][$facet]){
-						$args['facets'][$facet]['facet_filter']['bool']['should'][] = $filter;
-					}
-				}
-			}
-		}
-		
-		$args = \apply_filters('es_query_args', $args);
-
-		if($numeric) {
-			foreach(array_keys($numeric) as $facet){
-				$ranges = Api::ranges($facet);
-
-				if(count($ranges) > 0 ){
-					$args['facets'][$facet]['range'][$facet] = array_values($ranges);
-					
-					if(count($filters) > 0){
-						foreach($filters as $filter){
-							$args['facets'][$facet]['facet_filter']['bool']['should'][] = $filter;
-						}
-					}
-				}
-			}
-		}
-
-		$args = \apply_filters('es_query_args', $args);
-        */
-
         $options = new MLPHP\Options(Api::client());
-            $term = new MLPHP\Term('all-results');
-            $term->setTermOptions(array('wildcarded'));
-            $options->setTerm($term);
 
-            $content_constraint = new MLPHP\WordConstraint("content", "content", "", null, null);
-            $content_constraint->setTermOptions(array(
-                'wildcarded'
-            ));
-            $options->addConstraint($content_constraint);
+        $content_constraint = new MLPHP\WordConstraint("content", "content", "", null, null);
+        $content_constraint->setTermOptions(array(
+            'wildcarded'
+        ));
+        $options->addConstraint($content_constraint);
 
-            $title_constraint = new MLPHP\WordConstraint("title", "title", "", null, null);
-            $title_constraint->setTermOptions(array(
-                'wildcarded'
-            ));
-            $options->addConstraint($title_constraint);
+        $title_constraint = new MLPHP\WordConstraint("title", "title", "", null, null);
+        $title_constraint->setTermOptions(array(
+            'wildcarded'
+        ));
+        $options->addConstraint($title_constraint);
 
-            $author_constraint = new MLPHP\WordConstraint("author", "display_name", "", null, null);
-            $author_constraint->setTermOptions(array(
-                'wildcarded'
-            ));
-            $options->addConstraint($author_constraint);
+        $author_constraint = new MLPHP\WordConstraint("author", "display_name", "", null, null);
+        $author_constraint->setTermOptions(array(
+            'wildcarded'
+        ));
+        $options->addConstraint($author_constraint);
+
+        $field_constraint = new MLPHP\FieldWordConstraint("default", "content01");
+
+        $term = new MLPHP\Term('all-results');
+        $term->setTermOptions(array(
+            'wildcarded'
+        ));
+
+        // $term->setDefault($content_constraint);  /* Can use this when you don't have the DB field named content 'content01' defined */
+        $term->setDefault($field_constraint); 
+        $options->setTerm($term);
+
 
         try {
             $options->write("wms");
@@ -200,9 +114,10 @@ class Searcher{
         $ids = array();
         $scores = array();
         $snippets = array();
+        $facets = array();
 
         foreach ($results->getResults() as $result) {
-            $id = substr($result->getURI(), 1);
+            $id = Document::uri_to_id($result->getURI());
             $ids[] = $id;
             $scores[$id] = $result->getScore();
             $snippets[$id] = array();
@@ -217,7 +132,7 @@ class Searcher{
 			'total' => $results->getTotal(),
 			'snippets' => $snippets,
 			'scores' => $scores,
-			'facets' => array(), 
+			'facets' => $facets,
             'ids' => $ids
 		);
 

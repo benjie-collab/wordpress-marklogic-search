@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/marklogic/mlphp.git",
-                "reference": "d967fbbcda4109eff190a176e122ca7879f6121c"
+                "reference": "ed6083f241f4bfbd6812d22d90174dbc71b9071f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marklogic/mlphp/zipball/d967fbbcda4109eff190a176e122ca7879f6121c",
-                "reference": "d967fbbcda4109eff190a176e122ca7879f6121c",
+                "url": "https://api.github.com/repos/marklogic/mlphp/zipball/ed6083f241f4bfbd6812d22d90174dbc71b9071f",
+                "reference": "ed6083f241f4bfbd6812d22d90174dbc71b9071f",
                 "shasum": ""
             },
             "require": {
@@ -56,7 +56,7 @@
                 "nosql",
                 "search"
             ],
-            "time": "2013-07-20 02:59:10"
+            "time": "2013-07-23 16:51:33"
         },
         {
             "name": "psr/log",

@@ -87,32 +87,30 @@ class Search{
 
 		$results = Searcher::query($search, $this->page, $wp_query->query_vars['posts_per_page'], $wp_query->query_vars);
 
-		if ($results == null || $results['total'] < 1){
-
-		    $this->total = array();
-		    $this->scores = array();
-		    $this->snippets = array();
-
+		if ($results == null) {
 			return null;
-		} else {
-		    $this->total = $results['total'];
-		    $this->scores = $results['scores'];
-		    $this->snippets = $results['snippets'];
+		}
 
-            $wp_session = \WP_Session::get_instance(); 
-            $wp_session['wms_s'] = $search;
-            Api::logger()->debug("wms_s " . $search);
-        }
+		$this->searched = true;	
+		$this->total = $results['total'];
+		$this->scores = $results['scores'];
+
+        $wp_session = \WP_Session::get_instance(); 
+        $wp_session['wms_s'] = $search;
+        Api::logger()->debug("wms_s " . $search);
 		
 		$wp_query->query_vars['s'] = '';	
+
+		if ($results['total'] < 1){
+			return null;
+		}
+
 		$wp_query->query_vars['post__in'] = $results['ids'];
 
         Api::logger()->debug("IDs " . implode(" ", $results['ids']));
         
 		$wp_query->query_vars['paged'] = 1;
 		$wp_query->facets = $results['facets'];
-
-		$this->searched = true;	
 	}
 
 	function process_search($posts){
@@ -129,11 +127,9 @@ class Search{
 			$wp_query->query_vars['s'] = $_GET['s'];
 
             if ($this->total > 0) 
-			    usort($posts, array($this, 'sort_posts'));
-
-            // Can I process posts here? XXX
-
-            Api::logger()->debug('sorted count($posts) ' . count($posts));
+			    usort($posts, array(&$this, 'sort_posts'));
+            else 
+                array_splice($posts, 0, count($posts));
 		}
 
 		return $posts;
