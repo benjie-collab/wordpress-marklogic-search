@@ -31,19 +31,23 @@ class Search{
 
 		$results = Searcher::query($search, $this->page, $wp_query->query_vars['posts_per_page'], $wp_query->query_vars);
 
-		if ($results == null || $results['total'] < 1){
+		if ($results == null) {
 			return null;
 		}
 
+		$this->searched = true;	
 		$this->total = $results['total'];
 		$this->scores = $results['scores'];
 		
 		$wp_query->query_vars['s'] = '';	
+
+		if ($results['total'] < 1){
+			return null;
+		}
+
 		$wp_query->query_vars['post__in'] = $results['ids'];
 		$wp_query->query_vars['paged'] = 1;
 		$wp_query->facets = $results['facets'];
-
-		$this->searched = true;	
 	}
 
 	function process_search($posts){
@@ -59,6 +63,8 @@ class Search{
 
             if ($this->total > 0) 
 			    usort($posts, array(&$this, 'sort_posts'));
+            else 
+                array_splice($posts, 0, count($posts));
 		}
 
 		return $posts;

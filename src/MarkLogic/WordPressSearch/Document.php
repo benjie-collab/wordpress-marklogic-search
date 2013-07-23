@@ -6,19 +6,30 @@ use MarkLogic\MLPHP;
 
 class Document {
 
-	static function delete($post) {
-        $uri = "/" . $post->ID;
-        $doc = new MLPHP\Document(Api::client(), $uri);
-        $doc->delete($uri);
+    const MARKLOGIC_DIR = "/wordpress/";
+    const MARKLOGIC_XML_EXT = ".xml";
+
+    static function post_uri($post) {
+        return self::MARKLOGIC_DIR . $post->ID . self::MARKLOGIC_XML_EXT;
+    }
+    
+    static function uri_to_id($uri) {
+        $len = strlen($uri) - strlen(Document::MARKLOGIC_DIR) - strlen(Document::MARKLOGIC_XML_EXT);
+        return substr($uri, strlen(Document::MARKLOGIC_DIR), $len);
     }
 
     static function esc($s) {
         return htmlentities($s, ENT_COMPAT, "UTF-8");
     }
 
+    static function delete($post) {
+        $doc = new MLPHP\Document(Api::client(), self::post_uri($post));
+        $doc->delete(self::post_uri($post));
+    }
+
     static function addOrUpdate($post) {
 
-        $uri = "/" . $post->ID;
+        $uri = self::post_uri($post); 
 
         Api::logger()->debug("POST: " . serialize($post));
         Api::logger()->debug("URI: " . $uri);
@@ -62,7 +73,6 @@ class Document {
         $doc->setContent($root->saveXML());
 
         // Api::logger()->debug("mime_type: " . get_post_mime_type($post->ID));
-        $doc->setContentType("application/xml"); // XXX I think an mlphp bug; this shouldn't be needed
 
         $doc->write($uri);
     }
