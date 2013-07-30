@@ -4,6 +4,8 @@ namespace MarkLogic\WordPressSearch;
 
 use MarkLogic\MLPHP;
 
+require __DIR__ . "/class.html2text.inc";
+
 class Document {
 
     const MARKLOGIC_DIR = "/wordpress/";
@@ -24,21 +26,17 @@ class Document {
 
     static function tidy($s) {
         $t = new \tidy();
-        $t->parseString($s, array(
+        $t->parseString("<html>".$s. "</html>", array(
             'input-encoding'   => 'utf8',
             'output-encoding'  => 'utf8',
-            'output-xml'       => 'true'
-/*
-            'show-body-only'   => 'true',
-            'add-xml-space'    => 'true',
+            'input-xml'        => true,
+            'output-xhtml'     => true,
+            'show-body-only'   => true,
+            'add-xml-space'    => true,
             'doctype'          => 'omit',
-            'numeric-entities' => 'yes', 
-            'add-xml-decl' => false
-*/
-
+            'numeric-entities' => true
         ), 'utf8');
         $t->cleanRepair();
-
         return $t;
     }
 
@@ -57,48 +55,82 @@ class Document {
 
         $doc = new MLPHP\XMLDocument(Api::client(), $uri);
 
-        $root = new \SimpleXMLElement('<doc/>');
-        $t = self::tidy($post->post_content);
-        Api::logger()->debug("tidy  : " . $t);
-        // $t = html_entity_decode($t);
-        // Api::logger()->debug("hed  : " . $t);
-        // $xhtml = new \SimpleXMLElement($t);
-        // Api::logger()->debug("xhtml  : " . $xhtml);
+        $dom = new \DOMDocument();
+        $root = $dom->createElement("doc");
+        $dom->appendChild($root); 
+        
+        $id = $dom->createElement("id", $post->ID);
+        $root->appendChild($id);
 
-        $root->addChild("id", $post->ID);
-        $root->addChild("content", self::esc($post->post_content));
-        // $root->addChild("content-tidy", self::tidy($post->post_content));
-        $tags = $root->addChild("tags");
+        $content = $dom->createElement("content");
+        $root->appendChild($content);
+        $textContent = $dom->createTextNode(self::esc($post->post_content));
+        $content->appendChild($textContent);
+
+        $content = $dom->createElement("content-text");
+        $root->appendChild($content);
+        $cvt = new \html2text($post->post_content);
+        $textContent = $dom->createTextNode($cvt->get_text());
+        $content->appendChild($textContent);
+
+        $tidyDoc = new \DOMDocument();
+        $tidyXML = self::tidy($post->post_content);
+        Api::logger()->debug("tidyXML: " . $tidyXML);
+        $tidyDoc->loadXML("<content-tidy>" . $tidyXML . "</content-tidy>");
+        $tidyElt = $dom->importNode($tidyDoc->childNodes->item(0), true);
+        $root->appendChild($tidyElt);
+
+        $tags = $dom->createElement("tags");
+        $root->appendChild($tags);
+        
         $post_tags = get_the_tags($post->ID);
         if ($post_tags) {
             foreach ($post_tags as $tag) {
-                $t = $tags->addChild("tag");
-                $t->addChild("id", self::esc($tag->term_id));
-                $t->addChild("name", self::esc($tag->name));
-                $t->addChild("slug", self::esc($tag->slug));
-                $t->addChild("term_group", self::esc($tag->term_group));
-                $t->addChild("taxonomy", self::esc($tag->taxonomy));
-                $t->addChild("description", self::esc($tag->description));
+                
+                $te = $dom->createElement("tag");
+                $tags->appendChild($te);
+
+                foreach (array(
+                    'id'            => $tag->term_id,
+                    'name'          => $tag->name,
+                    'slug'          => $tag->slug, 
+                    'term_group'    => $tag->term_group,
+                    'taxonomy'      => $tag->taxonomy,
+                    'description'   => $tag->description
+
+                ) as $field => $value) {
+                    $e = $dom->createElement($field, self::esc($value));
+                    $te->appendChild($e);
+                }
             }
         }
-        $author = $root->addChild("author");
-            $author->addChild("id", $post->post_author);
-            $author->addChild("login", self::esc(get_the_author_meta('login', $post->post_author)));
-            $author->addChild("nicename", self::esc(get_the_author_meta('user_nicename', $post->post_author)));
-            $author->addChild("display_name", self::esc(get_the_author_meta('display_name', $post->post_author)));
-            $author->addChild("nickname", self::esc(get_the_author_meta('nickname', $post->post_author)));
-            $author->addChild("first_name", self::esc(get_the_author_meta('first_name', $post->post_author)));
-            $author->addChild("last_name", self::esc(get_the_author_meta('last_name', $post->post_author)));
-            $author->addChild("description", self::esc(get_the_author_meta('description', $post->post_author)));
+        
+        $author = $dom->createElement("author");
+        $root->appendChild($author);
+        $dom->createElement("id", $post->post_author);
+        foreach (array(
+            'login',
+            'user_nicename',
+            'display_name', 
+            'nickname',
+            'first_name',
+            'last_name',
+            'description'
+        ) as $field) {
+            $e = $dom->createElement($field, self::esc(get_the_author_meta($field, $post->post_author)));
+            $author->appendChild($e);
+        }
 
-        $root->addChild("name", $post->post_name);
-        $root->addChild("type", $post->post_type);
-        $root->addChild("title", self::esc($post->post_title));
-        $root->addChild("date", str_replace(" ", "T", $post->post_date_gmt));
-        $root->addChild("modified", str_replace(" ", "T", $post->post_modified_gmt));
-        $root->addChild("status", self::esc($post->post_status));
+        $root->appendChild($dom->createElement("name", $post->post_name));
+        $root->appendChild($dom->createElement("type", $post->post_type));
+        $root->appendChild($dom->createElement("title", self::esc($post->post_title)));
+        $root->appendChild($dom->createElement("date_gmt", str_replace(" ", "T", $post->post_date_gmt)));
+        $root->appendChild($dom->createElement("modified_gmt", str_replace(" ", "T", $post->post_modified_gmt)));
+        $root->appendChild($dom->createElement("date", str_replace(" ", "T", $post->post_date)));
+        $root->appendChild($dom->createElement("modified", str_replace(" ", "T", $post->post_modified)));
+        $root->appendChild($dom->createElement("status", self::esc($post->post_status)));
 
-        $doc->setContent($root->saveXML());
+        $doc->setContent($dom->saveXML());
 
         // Api::logger()->debug("mime_type: " . get_post_mime_type($post->ID));
 
