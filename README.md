@@ -28,6 +28,8 @@ Everything in flux.  More to come soon.
 
 ### Roadmap
 
+Strike-through means item is ~~Completed~~
+
 #### 1.0 
 
 - Mostly replace built in WP search.
@@ -35,23 +37,24 @@ Everything in flux.  More to come soon.
 
 
 1. Setup/Install instructions 
-2. Admin UI for connection parameters, test, reload-all, clear, and disable/enable search.
+2. ~~Admin UI for connection parameters, test, reload-all, clear, and disable/enable search.~~
 3. Credentials stored encrypted in WP
 4. Search input field with support for syntax for
-    - author
+    - ~~author~~
     - tag
     - category
-    - title
-    - excerpt
+    - ~~title~~
 (Also, perhaps use search\_form hook and technique described here: http://stackoverflow.com/questions/1267044/css-for-text-background-in-text-input-element to display Powered By)
 5. Search covers
     - content
-    - author
-    - URI
-    - excerpt
+    - author (display_name only)
+    - URI (maybe name (slug) only?)
+    - tag
+    - category
 6. Search results rendered with hit-highlighted snippets (replacing normal WP Excerpts)
-    (Consider special rendering for hits in places other than content).
-7. Document updates, edits, deletes update content in MarkLogic
+    - Consider special rendering for hits in places other than content
+7. Consider hit highlighting documents displayed after a search (like developer.marklogic.com)
+8. Document updates, edits, deletes update content in MarkLogic
 
 #### 1.1 
 
