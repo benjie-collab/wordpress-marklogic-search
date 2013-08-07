@@ -18,10 +18,10 @@ class Search{
         // Can I do the below on a post instead of its pieces?
 		// add_filter('get_search_form', array($this, 'process_post'));
 
-		add_filter('the_title', array($this, 'highlight_text'));
-		add_filter('the_author', array($this, 'highlight_text'));
+		// add_filter('the_title', array($this, 'highlight_text'));
+		// add_filter('the_author', array($this, 'highlight_text'));
 		add_filter('the_content', array($this, 'highlight_text'));
-		add_filter('the_excerpt', array($this, 'highlight_text'));
+		// add_filter('the_excerpt', array($this, 'highlight_text'));
 
         // The ones here don't seem to be working with the marklogic-v2 theme, which uses a deprecated get_the_author() call
 		// add_filter('the_author_display_name', array($this, 'highlight_text'));
