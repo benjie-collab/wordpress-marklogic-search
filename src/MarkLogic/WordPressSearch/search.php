@@ -11,15 +11,17 @@ class Search{
 	var $page = 1;
 
 	function __construct(){
+		add_action('get_search_form', array($this, 'search_form'));
 		add_action('pre_get_posts', array($this, 'do_search'));
 		add_action('the_posts', array($this, 'process_search'));
 
         // Can I do the below on a post instead of its pieces?
 		// add_filter('get_search_form', array($this, 'process_post'));
 
-		// add_filter('the_content', array($this, 'highlight_text'));
 		add_filter('the_title', array($this, 'highlight_text'));
 		add_filter('the_author', array($this, 'highlight_text'));
+		add_filter('the_content', array($this, 'highlight_text'));
+		add_filter('the_excerpt', array($this, 'highlight_text'));
 
         // The ones here don't seem to be working with the marklogic-v2 theme, which uses a deprecated get_the_author() call
 		// add_filter('the_author_display_name', array($this, 'highlight_text'));
@@ -28,23 +30,29 @@ class Search{
 
         add_filter('get_the_excerpt', array($this, 'do_excerpt'));
 
-        add_action('wp_enqueue_scripts', function() {
-            wp_enqueue_style(
-                'marklogic_search',
-                plugins_url( 'wordpress-marklogic-search/css/search.css' ) ,
-                array(), '1.0'
-            );
-        });
 	}
+
+    function search_form($f) {
+        wp_enqueue_style(
+            'marklogic_search',
+            plugins_url( 'wordpress-marklogic-search/css/search.css' ) ,
+            array(), '1.0'
+        );
+
+        wp_enqueue_script(
+            'marklogic_search',
+            plugins_url( 'wordpress-marklogic-search/js/form.js' ) ,
+            array('jquery'), '1.0', true
+        );
+    }
 
     function highlight_text($t) {
         global $post;
-        if (Api::option('enabled') && $this->total > 0 && is_search() && !is_admin()){
+        if (Api::option('enabled')) {
             $wp_session = \WP_Session::get_instance(); 
-                Api::logger()->debug("SESSION " . serialize($wp_session));
+            Api::logger()->debug("SESSION " . serialize($wp_session));
 
             if (isset($wp_session['wms_s'])) {
-                Api::logger()->debug("Highlighting post: " . $post->ID);
                 $t = Searcher::highlight($wp_session['wms_s'], "text/plain", $t);
             }
         }
@@ -71,7 +79,8 @@ class Search{
                         // $p .= "<b>" . $name . ":&#160;</b>" . $snippet->getContent() . "<br/>";
                     // }
                 } else {
-                    $p .= $snippet->getContent() . "<br/>"; // consider ripping out newlines
+                    $munged = $string = preg_replace('/\s+/', ' ', trim($snippet->getContent())) . "<br/>"; // ripping out newlines
+                    $p .= $munged;
                 }
             }
             return $p ; // . '<br/>' ; // . $param;

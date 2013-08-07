@@ -3,8 +3,3 @@ span.highlight, span.hit {
     background-color:  yellow;
     color:  red;
 }
-
-div.search-form > form > input[type="text"] {
-    background-color: yellow;
-    color: red;
-}
