@@ -9,6 +9,8 @@ Very much work in progress.  For more info, hit me up [on twitter](http://twitte
 * Composer
 * MLPHP
 
+Optional
+* [WordPress Session Manager Plugin](http://wordpress.org/plugins/wp-session-manager/)
 ### Development deets
 
 To get going, pull down the repository and then
