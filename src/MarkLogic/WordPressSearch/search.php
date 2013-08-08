@@ -49,12 +49,14 @@ class Search{
     function highlight_text($t) {
         global $post;
         if (Api::option('enabled')) {
-            $wp_session = \WP_Session::get_instance(); 
-            Api::logger()->debug("SESSION " . serialize($wp_session));
-
-            if (isset($wp_session['wms_s'])) {
-                $t = Searcher::highlight($wp_session['wms_s'], "text/plain", $t);
-            }
+            if (class_exists("\WP_Session")) {
+                $wp_session = \WP_Session::get_instance(); 
+                Api::logger()->debug("SESSION " . serialize($wp_session));
+    
+                if (isset($wp_session['wms_s'])) {
+                    $t = Searcher::highlight($wp_session['wms_s'], "text/plain", $t);
+                }
+            } 
         }
         return $t;
     }
@@ -117,9 +119,11 @@ class Search{
 		$this->scores = $results['scores'];
 		$this->snippets = $results['snippets'];
 
-        $wp_session = \WP_Session::get_instance(); 
-        $wp_session['wms_s'] = $search;
-        Api::logger()->debug("wms_s " . $search);
+        if (class_exists("\WP_Session")) {
+            $wp_session = \WP_Session::get_instance(); 
+            $wp_session['wms_s'] = $search;
+            Api::logger()->debug("wms_s " . $search);
+        }
 		
 		$wp_query->query_vars['s'] = '';	
 
