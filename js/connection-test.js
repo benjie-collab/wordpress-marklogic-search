@@ -2,8 +2,8 @@ jQuery(document).ready(function($) {
 
     $('input.mws_connection_test').on('click', function(e) {
 
-        url = $('input.mws_connection_test').data('url');
-        $.post(url, $('form.mws_connection_settings').serialize(), function(d, ts, jqx) {
+        url = window.wms_connection_test.url;
+        $.post(url, $('form').serialize() + "&action=wms_connection_test", function(d, ts, jqx) {
             alert(d);
         });
 

@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "854a9b74e942be790ac9272c87f8233e",
+    "hash": "70b5ebf0bc778260334e0fe9222f6671",
     "packages": [
         {
             "name": "marklogic/mlphp",
@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/marklogic/mlphp.git",
-                "reference": "f0ca12427e2f965f8570969fb57f2d549dec1914"
+                "reference": "8d70bcd38cf408add4ee09922b269eecf5dc4701"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/marklogic/mlphp/zipball/f0ca12427e2f965f8570969fb57f2d549dec1914",
-                "reference": "f0ca12427e2f965f8570969fb57f2d549dec1914",
+                "url": "https://api.github.com/repos/marklogic/mlphp/zipball/8d70bcd38cf408add4ee09922b269eecf5dc4701",
+                "reference": "8d70bcd38cf408add4ee09922b269eecf5dc4701",
                 "shasum": ""
             },
             "require": {
@@ -56,7 +56,7 @@
                 "nosql",
                 "search"
             ],
-            "time": "2013-07-18 20:17:12"
+            "time": "2013-08-06 20:29:21"
         },
         {
             "name": "pimple/pimple",
@@ -145,70 +145,27 @@
     ],
     "packages-dev": [
         {
-            "name": "ccampbell/chromephp",
-            "version": "4.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ccampbell/chromephp.git",
-                "reference": "4.1.0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ccampbell/chromephp/zipball/4.1.0",
-                "reference": "4.1.0",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "ChromePhp": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Craig Campbell",
-                    "email": "iamcraigcampbell@gmail.com",
-                    "homepage": "http://craig.is",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Log variables to the Chrome console (via Chrome Logger Google Chrome extension).",
-            "homepage": "http://github.com/ccampbell/chromephp",
-            "keywords": [
-                "log",
-                "logging"
-            ],
-            "time": "2013-06-26 03:44:33"
-        },
-        {
             "name": "monolog/monolog",
-            "version": "1.5.0",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "1.5.0"
+                "reference": "1.6.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1.5.0",
-                "reference": "1.5.0",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1.6.0",
+                "reference": "1.6.0",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
-                "psr/log": ">=1.0,<2.0"
+                "psr/log": "~1.0"
             },
             "require-dev": {
                 "doctrine/couchdb": "dev-master",
                 "mlehner/gelf-php": "1.0.*",
-                "raven/raven": "0.3.*"
+                "raven/raven": "0.5.*"
             },
             "suggest": {
                 "doctrine/couchdb": "Allow sending log messages to a CouchDB server",
@@ -220,7 +177,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -247,7 +204,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2013-04-23 10:09:48"
+            "time": "2013-07-28 22:38:30"
         }
     ],
     "aliases": [

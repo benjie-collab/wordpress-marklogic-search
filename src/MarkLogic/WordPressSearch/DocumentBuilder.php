@@ -10,28 +10,52 @@
 
 namespace MarkLogic\WordPressSearch;
 
+require __DIR__ . "/class.html2text.inc";
+
 /**
  * Default implementation of our document builder.
  *
  * @since   1.0
  * @author  Christopher Davis <chris@pmg.co>
+ * @author  Eric Bloch <eric.bloch@gmail.com>
  */
 class DocumentBuilder implements DocumentBuilderInterface
 {
+    const MARKLOGIC_DIR = "/wordpress/";
+    const MARKLOGIC_XML_EXT = ".xml";
+
+    static function uri_to_id($uri) {
+        $len = strlen($uri) - strlen(self::MARKLOGIC_DIR) - strlen(self::MARKLOGIC_XML_EXT);
+        return substr($uri, strlen(self::MARKLOGIC_DIR), $len);
+    }
+
+    static protected function esc($s) {
+        return htmlentities($s, ENT_COMPAT, "UTF-8");
+    }
+
+    static protected function tidy($s) {
+        $t = new \tidy();
+        $t->parseString("<html>".$s. "</html>", array(
+            'input-encoding'   => 'utf8',
+            'output-encoding'  => 'utf8',
+            'input-xml'        => true,
+            'output-xhtml'     => true,
+            'show-body-only'   => true,
+            'add-xml-space'    => true,
+            'doctype'          => 'omit',
+            'numeric-entities' => true
+        ), 'utf8');
+        $t->cleanRepair();
+        return $t;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function uri($post)
-    {
-        $uri = null;
-        if (is_object($post) && isset($post->ID)) {
-            $uri = "/{$post->ID}";
-        }
-
-        // XXX maybe a bad idea to allow this to be filterable?
-        return apply_filters('mlws_document_uri', $uri, $post);
+    static public function uri($post) {
+        return self::MARKLOGIC_DIR . $post->ID . self::MARKLOGIC_XML_EXT;
     }
-
+    
     /**
      * {@inheritdoc}
      */
@@ -41,198 +65,93 @@ class DocumentBuilder implements DocumentBuilderInterface
             return null;
         }
 
-        $doc = new \SimpleXMLElement('<doc/>');
+        $dom = new \DOMDocument();
+        $root = $dom->createElement("doc");
+        $dom->appendChild($root); 
+        
+        $xml = $dom->saveXML();
 
         // allow users to complex avoid what follows, not generally advisable
         // but dooable in any case.
-        if (apply_filters('mlws_pre_build_document', false, $doc, $post)) {
-            return apply_filters('mlws_document', $doc->asXML(), $post);
+        if (apply_filters('mlws_pre_build_document', false, $xml, $post)) {
+            return apply_filters('mlws_document', $xml, $post);
         }
 
-        $this->addPost($doc, $post);
-        $this->addAuthor($doc, $post);
-        $this->addTerms($doc, $post);
+        $id = $dom->createElement("id", $post->ID);
+        $root->appendChild($id);
 
-        do_action('mlws_document', $doc, $post);
+        $content = $dom->createElement("content");
+        $root->appendChild($content);
+        $textContent = $dom->createTextNode(self::esc($post->post_content));
+        $content->appendChild($textContent);
 
-        return apply_filters('mlws_document', $doc->asXML(), $post);
-    }
+        $content = $dom->createElement("content-text");
+        $root->appendChild($content);
+        $cvt = new \html2text($post->post_content);
+        $textContent = $dom->createTextNode($cvt->get_text());
+        $content->appendChild($textContent);
 
-    /**
-     * Add all the post fields to our document.
-     *
-     * @since   1.0
-     * @access  public
-     * @uses    do_action
-     * @param   SimpleXMLElement $doc
-     * @param   object|WP_Post $post
-     * @return  void
-     */
-    protected function addPost(\SimpleXMLElement $doc, $post)
-    {
-        static $fields = null;
-        if (null === $fields) {
-            $fields = $this->getSavablePostFields();
-        }
+        $tidyDoc = new \DOMDocument();
+        $tidyXML = self::tidy($post->post_content);
+        Plugin::debug("tidyXML: " . $tidyXML);
+        $tidyDoc->loadXML("<content-tidy>" . $tidyXML . "</content-tidy>");
+        $tidyElt = $dom->importNode($tidyDoc->childNodes->item(0), true);
+        $root->appendChild($tidyElt);
 
-        foreach ($fields as $input => $output) {
-            $doc->addChild($output, isset($post->$input) ? $this->escape($post->$input) : '');
-        }
+        $tags = $dom->createElement("tags");
+        $root->appendChild($tags);
+        
+        $post_tags = get_the_tags($post->ID);
+        if ($post_tags) {
+            foreach ($post_tags as $tag) {
+                
+                $te = $dom->createElement("tag");
+                $tags->appendChild($te);
 
-        do_action('mlws_document_add_post', $doc, $post);
-    }
+                foreach (array(
+                    'id'            => $tag->term_id,
+                    'name'          => $tag->name,
+                    'slug'          => $tag->slug, 
+                    'term_group'    => $tag->term_group,
+                    'taxonomy'      => $tag->taxonomy,
+                    'description'   => $tag->description
 
-    /**
-     * Returns the array of fields from the post that we'll save to MarkLogic
-     *
-     * Should be an array of $object_attr => output tag pairs
-     *
-     * @since   1.0
-     * @access  protected
-     * @uses    apply_filters
-     * @return  array
-     */
-    protected function getSavablePostFields()
-    {
-        return apply_filters('mlws_savable_post_fields', array(
-            'ID'                => 'id',
-            'post_content'      => 'content',
-            'post_excerpt'      => 'excerpt',
-            'post_title'        => 'title',
-            'post_type'         => 'type',
-            'post_date_gmt'     => 'date',
-            'post_modified_gmt' => 'modified',
-            'post_status'       => 'status',
-            'post_name'         => 'name',
-        ));
-    }
-
-    /**
-     * Add the author object to our post.
-     *
-     * @since   1.0
-     * @access  protected
-     * @uses    do_action
-     * @param   SimpleXMLElement $doc
-     * @param   object|WP_Post $post
-     * @return  void
-     */
-    protected function addAuthor(\SimpleXMLElement $doc, $post)
-    {
-        static $fields = null;
-        if (null === $fields) {
-            $fields = $this->getSavableAuthorFields();
-        }
-
-        $author = $doc->addChild('author');
-        foreach ($fields as $input => $output) {
-            $author->addChild($output, $this->escape(get_the_author_meta($input, $post->post_author)));
-        }
-
-        do_action('mlws_document_add_author', $author, $post, $doc);
-    }
-
-    /**
-     * Get the author fields we 'll save to MarkLogic in $input => $output pairs
-     *
-     * @since   1.0
-     * @access  protected
-     * @uses    apply_filters
-     * @return  array
-     */
-    protected function getSavableAuthorFields()
-    {
-        return apply_filters('mlws_savable_author_fields', array(
-            'ID'            => 'id',
-            'user_login'    => 'login',
-            'user_nicename' => 'nicename',
-            'display_name'  => 'display_name',
-            'nickname'      => 'nickname',
-            'first_name'    => 'first_name',
-            'last_name'     => 'last_name',
-            'description'   => 'description',
-        ));
-    }
-
-    /**
-     * Add all the terms for a given post.
-     *
-     * @since   1.0
-     * @access  protected
-     * @param   SimpleXMLElement $doc
-     * @param   object|WP_Post $post
-     * @return  void
-     */
-    protected function addTerms(\SimpleXMLElement $doc, $post)
-    {
-        static $fields = null;
-        if (null === $fields) {
-            $fields = $this->getSavableTermFields();
-        }
-
-        $taxonomies = apply_filters(
-            'mlws_document_taxonomies',
-            get_object_taxonomies($post->post_type, 'object'),
-            $post
-        );
-
-        $all_terms = wp_get_object_terms($post->ID, array_keys($taxonomies));
-
-        foreach ($taxonomies as $name => $tax) {
-            $tax_doc = $doc->addChild('taxonomy');
-            $tax_doc->addChild('name', $name);
-            $tax_doc->addChild(
-                'singular_name',
-                isset($tax->labels->singular_name) ? $this->escape($tax->labels->singular_name) : ''
-            );
-            $tax_doc->addChild(
-                'plural_name',
-                isset($tax->labels->name) ? $this->escape($tax->labels->name) : ''
-            );
-
-            $terms = $tax_doc->addChild('terms');
-            foreach (wp_list_filter($all_terms, array('taxonomy' => $name)) as $term) {
-                $_term = $terms->addChild('term');
-
-                foreach ($fields as $input => $output) {
-                    $_term->addChild($output, isset($term->$input) ? $this->escape($term->$input) : '');
+                ) as $field => $value) {
+                    $e = $dom->createElement($field, self::esc($value));
+                    $te->appendChild($e);
                 }
             }
-
-            do_action('mlws_document_add_taxonomy', $tax_doc, $post, $tax, $terms, $doc);
         }
-    }
+        
+        $author = $dom->createElement("author");
+        $root->appendChild($author);
+        $dom->createElement("id", $post->post_author);
+        foreach (array(
+            'login',
+            'user_nicename',
+            'display_name', 
+            'nickname',
+            'first_name',
+            'last_name',
+            'description'
+        ) as $field) {
+            $e = $dom->createElement($field, self::esc(get_the_author_meta($field, $post->post_author)));
+            $author->appendChild($e);
+        }
 
-    /**
-     * Get the fields for a term that are allowed to be saved.
-     *
-     * @since   1.0
-     * @access  protected
-     * @uses    apply_filters
-     * @return  array
-     */
-    protected function getSavableTermFields()
-    {
-        return apply_filters('mlws_savable_term_fields', array(
-            'term_id'       => 'id',
-            'name'          => 'name',
-            'slug'          => 'slug', 
-            'term_group'    => 'term_group',
-            'description'   => 'description',
-        ));
-    }
+        $root->appendChild($dom->createElement("name", $post->post_name));
+        $root->appendChild($dom->createElement("type", $post->post_type));
+        $root->appendChild($dom->createElement("title", self::esc($post->post_title)));
+        $root->appendChild($dom->createElement("date_gmt", str_replace(" ", "T", $post->post_date_gmt)));
+        $root->appendChild($dom->createElement("modified_gmt", str_replace(" ", "T", $post->post_modified_gmt)));
+        $root->appendChild($dom->createElement("date", str_replace(" ", "T", $post->post_date)));
+        $root->appendChild($dom->createElement("modified", str_replace(" ", "T", $post->post_modified)));
+        $root->appendChild($dom->createElement("status", self::esc($post->post_status)));
 
-    /**
-     * Escape content for SimpleXMLElement. For now this just uses esc_attr
-     *
-     * @since   1.0
-     * @access  protected
-     * @uses    esc_attr
-     * @param   string $to_esc
-     * @return  string
-     */
-    protected function escape($to_esc)
-    {
-        return esc_attr($to_esc);
+        $xml = $dom->saveXML();
+
+        do_action('mlws_document', $xml, $post);
+
+        return apply_filters('mlws_document', $xml, $post);
     }
 }

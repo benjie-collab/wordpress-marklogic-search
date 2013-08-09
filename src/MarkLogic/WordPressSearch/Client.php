@@ -11,6 +11,7 @@
 namespace MarkLogic\WordPressSearch;
 
 use MarkLogic\MLPHP\RESTClient;
+use MarkLogic\MLPHP\Database;
 use MarkLogic\MLPHP\XMLDocument as MarkLogicDocument;
 
 /**
@@ -123,7 +124,7 @@ class Client
     public function deletePost($post)
     {
         if ($uri = $this->getDocumentBuilder()->uri($post)) {
-            $this->generateDocument($uri)->delete();
+            $this->document($uri)->delete();
             return true;
         }
 
@@ -140,6 +141,7 @@ class Client
      */
     public function savePost($post)
     {
+
         $builder = $this->getDocumentBuilder();
 
         $uri = $builder->uri($post);
@@ -152,16 +154,60 @@ class Client
             return false;
         }
 
-        $doc = $this->generateDocument($uri);
+        $doc = $this->document($uri);
         $doc->setContent($xml);
-        $doc->setContentType("application/xml");
-        $doc->write();
+        $doc->write($uri);
 
         return true;
     }
 
-    protected function generateDocument($uri)
+    protected function document($uri)
     {
         return new MarkLogicDocument($this->getRestClient(), $uri);
+    }
+
+    /**
+     * @return string
+     */
+    public function clear() {
+
+        $db = new Database($this->getRestClient());
+        $db->clear();
+
+        return "All clear";
+    }
+
+    /**
+     * @return string
+     */
+    public function reloadAll() {
+
+		$posts = get_posts(array(
+            'post_type' => array('post','page'), // XXX make extensible
+            'posts_per_page' => -1,
+            'post_status' => 'publish'
+        ));
+    
+		foreach($posts as $post){
+            $this->savePost($post);
+        }
+
+        $ret =  "Reloaded " . count($posts) . " posts/pages";
+
+        /*
+        $attachments = get_posts(array( 
+            'post_type' => 'attachment', 
+            'posts_per_page' => -1, 
+            'post_status' => 'any', 
+            'post_parent' => null 
+        ));
+
+		foreach($attachments as $post){
+            $this->savePost($post);
+		}
+
+        $ret .=  " and " . count($attachments) " attachments";
+        */
+        return  $ret;
     }
 }

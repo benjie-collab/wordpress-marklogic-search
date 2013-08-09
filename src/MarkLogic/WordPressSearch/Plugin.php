@@ -11,7 +11,11 @@
 namespace MarkLogic\WordPressSearch;
 
 use Psr\Log\NullLogger;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
 use MarkLogic\MLPHP\RESTClient;
+use MarkLogic\MLPHP\Database;
 
 /**
  * A service locator.
@@ -33,7 +37,17 @@ class Plugin extends \Pimple
         parent::__construct($services);
 
         $this['logger'] = $this->share(function ($p) {
-            return new NullLogger();
+            if ($p->option('debug_log')) {
+                $logger = new \Monolog\Logger('marklogic_search');
+                $logger->pushHandler(new \Monolog\Handler\StreamHandler('/tmp/debug.log', Logger::DEBUG));
+                return $logger;
+            } else {
+                return new NullLogger();
+            }
+        });
+
+        $this['builder'] = $this->share(function ($p) {
+            return new DocumentBuilder();
         });
 
         $this['restclient'] = $this->share(function ($p) {
@@ -49,14 +63,31 @@ class Plugin extends \Pimple
             );
         });
 
-        $this['builder'] = $this->share(function ($p) {
-            return new DocumentBuilder();
-        });
-
         $this['client'] = $this->share(function ($p) {
             return new Client($p['restclient'], $p['builder']);
         });
+
+        $this['searcher'] = $this->share(function ($p) {
+            return new Searcher();
+        });
     }
+
+    /**
+     * 
+     */
+    public function init() 
+    {
+        $i = self::instance();
+        $client = $i['client'];
+
+	    add_action( 'save_post',   array( $client, 'savePost' ) );
+	    add_action( 'delete_post', array( $client, 'deletePost' ) ); // XXX do I need both hooks?
+	    add_action( 'trash_post',  array( $client, 'deletePost' ) );
+
+        $searcher = $i['searcher'];
+        $searcher->init();
+    }
+       
 
     /**
      * A helper to get options.
@@ -90,5 +121,29 @@ class Plugin extends \Pimple
         }
 
         return static::$instance;
+    }
+
+    /**
+     * @return Client
+     */
+    public static function client() {
+        $i = self::instance();
+        return $i['client'];
+    }
+
+    /**
+     * @param $s string
+     */
+    public static function debug($s) {
+        $i = self::instance();
+        $i['logger']->debug($s);
+    }
+
+    /**
+     * @param $s string
+     */
+    public static function error($s) {
+        $i = self::instance();
+        $i['logger']->error($s);
     }
 }

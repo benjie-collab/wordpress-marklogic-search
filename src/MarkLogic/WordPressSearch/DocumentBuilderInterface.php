@@ -28,7 +28,7 @@ interface DocumentBuilderInterface
      * @param   object|WP_Post $post
      * @return  string
      */
-    public function uri($post);
+    static public function uri($post);
 
     /**
      * Turn a post into an XML string.

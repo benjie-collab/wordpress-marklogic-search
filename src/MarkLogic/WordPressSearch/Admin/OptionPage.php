@@ -13,6 +13,8 @@ namespace MarkLogic\WordPressSearch\Admin;
 use MarkLogic\WordPressSearch\AutoHook;
 use MarkLogic\WordPressSearch\Plugin;
 
+use MarkLogic\MLPHP;
+
 class OptionPage extends AutoHook
 {
     private $generator;
@@ -22,6 +24,11 @@ class OptionPage extends AutoHook
         $this->generator = new FieldGenerator();
         add_action('admin_init', array($this, 'registerSettings'));
         add_action('admin_menu', array($this, 'registerPage'));
+
+        add_action( 'wp_ajax_wms_reload_all',      array($this, 'reload_all'));
+        add_action( 'wp_ajax_wms_clear',           array($this, 'clear'));
+        add_action( 'wp_ajax_wms_connection_test', array($this, 'connection_test'));
+
     }
 
     public function registerSettings()
@@ -92,6 +99,31 @@ class OptionPage extends AutoHook
 
     public function pageCallback()
     {
+        wp_enqueue_script(
+            'marklogic_connection_test',
+            plugins_url( 'wordpress-marklogic-search/js/connection-test.js' ) ,
+            array('jquery'), '1.0', true
+        );
+        wp_enqueue_script(
+            'marklogic_reload_all',
+            plugins_url( 'wordpress-marklogic-search/js/reload.js' ) ,
+            array('jquery'), '1.0', true
+        );
+        wp_enqueue_script(
+            'marklogic_clear',
+            plugins_url( 'wordpress-marklogic-search/js/clear.js' ) ,
+            array('jquery'), '1.0', true
+        );
+	    wp_localize_script( 'marklogic_reload_all', 'wms_reload', array(
+	        'url' => admin_url( 'admin-ajax.php' )
+	    ));
+	    wp_localize_script( 'marklogic_clear', 'wms_clear', array(
+	        'url' => admin_url( 'admin-ajax.php' )
+	    ));
+	    wp_localize_script( 'marklogic_connection_test', 'wms_connection_test', array(
+	        'url' => admin_url( 'admin-ajax.php' )
+	    ));
+
         ?>
         <div class="wrap">
             <?php screen_icon('plugins'); ?>
@@ -102,7 +134,10 @@ class OptionPage extends AutoHook
                 do_settings_sections(Plugin::OPTION);
                 ?>
                 <p>
-                    <input type="submit" class="button-primary" value="<?php esc_attr_e('Save', 'marklogicws'); ?>" />
+                    <input type="submit" class="button-primary" value="<?php esc_attr_e('Save', 'marklogicws'); ?>" />&#160;&#160;
+                    <input type="button" name="Test" value="Test Connection" class="button mws_connection_test"/>&#160;&#160;
+                    <input type="button" name="Reload" value="Reload All Posts" class="button mws_reload_posts"/>&#160;&#160;
+                    <input type="button" name="Clear" value="Clear All Posts" class="button mws_clear"/>
                 </p>
             </form>
         </div>
@@ -142,6 +177,53 @@ class OptionPage extends AutoHook
                 'section'   => 'enabler',
                 'cleaners'  => array(),
             ),
+            'debug_log'   => array(
+                'label'     => __('Debug Log?', 'marklogicws'),
+                'type'      => 'checkbox',
+                'section'   => 'server',
+                'cleaners'  => array(),
+            ),
         );
+    }
+
+    function reload_all() {
+        try {
+            exit(Plugin::client()->reloadAll());
+        } catch (\Exception $e) {
+            header("HTTP/1.0 500 Internal Server Error");
+            exit($e->getMessage());
+        }
+    }
+    
+    function clear() {
+        try {
+            exit(Plugin::client()->clear());
+        } catch (\Exception $e) {
+            header("HTTP/1.0 500 Internal Server Error");
+            exit($e->getMessage());
+        }
+    }
+    
+    function connection_test() {
+        // Test the current parameters, not the saved ones.
+        try {
+            $client = new MLPHP\RESTClient(
+                
+                $_POST['marklogic_search']['host'],
+                $_POST['marklogic_search']['port'],
+                '',
+                'v1',
+                $_POST['marklogic_search']['user'],
+                $_POST['marklogic_search']['password'],
+                "digest"
+            );
+        
+            $search = new MLPHP\Search($client);
+            $search->setDirectory('/');
+            $results = $search->retrieve("")->getTotal();
+        } catch (\Exception $e) {
+            exit($e->getMessage());
+        }
+        exit("Success (". $results . " documents directly under /)");
     }
 }

@@ -9,6 +9,8 @@ Very much work in progress.  For more info, hit me up [on twitter](http://twitte
 * Composer
 * MLPHP
 
+Optional
+* [WordPress Session Manager Plugin](http://wordpress.org/plugins/wp-session-manager/)
 ### Development deets
 
 To get going, pull down the repository and then
@@ -26,24 +28,63 @@ fine grained yet.
 
 Everything in flux.  More to come soon.  
 
-#### Roadmap
+### Roadmap
 
-1. ~~save_post hook to store contents in DB~~
-1. ~~admin button to reload all ~~
-1. ~~Basic search results for text-based post-types (pre_get_posts/the_posts hooks)~~
-1. Use the_excerpt hook to display hit highlighted snippets in place of excerpts
-1. Use the_post hook to display hit highlighted content in place of regular content. (maybe same for author, title, etc).
-1. Add support for forum posts
-1. Figure out how facets work in WP
-    * For www, facet on 
-        * user defined time buckets (last month, 1-6 mos, 6-12 mos, > 1 year ago) ?
-        * Author?
-        * Post type (blog post, forum post, others?)
-1. Plugin cleanup/refactoring
-1. Metadata, Dates, Authors, Tags, Categories, Taxonomies
-1. Admin for specifying which posts types (and other stuff) should be indexed
-1. Are there hooks for when metadata (authors, tags) change and update docs?
-1. Design for attachments
-1. Hit highlighting results?
-1. Refactor admin (potentially) long running tasks (reload-all, clear-all) to be like f-e plugin (or other)
+Strike-through means item is ~~Completed~~
 
+#### 1.0 
+
+- Mostly replace built in WP search.
+- Good enough for use on www.marklogic.com 
+
+
+1. Setup/Install instructions 
+2. ~~Admin UI for connection parameters, test, reload-all, clear, and disable/enable search.~~
+3. Credentials stored encrypted in WP
+4. Search input field with support for syntax for
+    - ~~author~~
+    - tag
+    - category
+    - ~~title~~
+(Also, perhaps use search\_form hook and technique described here: http://stackoverflow.com/questions/1267044/css-for-text-background-in-text-input-element to display Powered By)
+5. Search covers
+    - content
+    - author (display_name only)
+    - URI (maybe name (slug) only?)
+    - tag
+    - category
+6. Search results rendered with hit-highlighted snippets (replacing normal WP Excerpts)
+    - Consider special rendering for hits in places other than content
+7. Consider hit highlighting documents displayed after a search (like developer.marklogic.com)
+8. Document updates, edits, deletes update content in MarkLogic
+
+#### 1.1 
+
+- Create something worth promotin. 
+- Provide some additional benefits and fully replaces buildin WP search.
+
+
+0. Catch events that cause edits to denormalized data (like Author, Tag, Category, Taxonomies, Metadata)
+0. Setup/Install instructions video
+0. Special rendering of search hits for places other than content (like author, title, URL, etc)
+0. Facets
+    - Tag/Category
+    - Other Taxonomies
+    - Metadata (admin config?)
+    Including DB configs
+0. Hit-highlighted content 
+
+#### 1.2 
+
+- Add more functionality
+
+0. Attachments
+1. Search term completion
+
+#### 2.0 
+
+- Sufficient to support integrated www.marklogic.com, developer.marklogic.com, and docs.marklogic.com
+More...
+
+0. Support for returning search hits and facets for non-WP content in MarkLogic.
+0. Storing search strings in MarkLogic for search analytics

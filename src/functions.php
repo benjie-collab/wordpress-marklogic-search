@@ -18,6 +18,8 @@ function mlws_load()
         WordPressSearch\Admin\OptionPage::init();
     }
 
+    WordPressSearch\Plugin::init();
+
     do_action('mlws_loaded');
 }
 

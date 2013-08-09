@@ -1,0 +1,5 @@
+span.highlight, span.hit {
+    font-weight: bold;
+    background-color:  yellow;
+    color:  red;
+}
