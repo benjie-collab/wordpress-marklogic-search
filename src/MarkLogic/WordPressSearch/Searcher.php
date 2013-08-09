@@ -113,8 +113,8 @@ class Searcher {
 			return;
 		}
 
-        // XXX wp seems to be putting slashes in front of quotes.  evil.
-		$search = $wp_query->query_vars['s'];
+		$search = stripslashes($wp_query->query_vars['s']);
+        Plugin::debug("Search input: " . $search);
 
 		$this->page = $wp_query->query_vars['paged'] > 0 ? $wp_query->query_vars['paged'] - 1 : 0;
 
@@ -165,7 +165,7 @@ class Searcher {
 			$wp_query->max_num_pages = ceil( $this->total / $wp_query->query_vars['posts_per_page'] );
 			$wp_query->found_posts = $this->total;
 			$wp_query->query_vars['paged'] = $this->page + 1;
-			$wp_query->query_vars['s'] = $_GET['s'];
+			$wp_query->query_vars['s'] = stripslashes($_GET['s']);
 
             if ($this->total > 0) 
 			    usort($posts, array(&$this, 'sort_posts'));
