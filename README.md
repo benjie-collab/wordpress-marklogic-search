@@ -46,10 +46,9 @@ Strike-through means item is ~~Completed~~
     - tag
     - category
     - ~~title~~
-(Also, perhaps use search\_form hook and technique described here: http://stackoverflow.com/questions/1267044/css-for-text-background-in-text-input-element to display Powered By)
 5. Search covers
     - content
-    - author (display_name only)
+    - author (display\_name only)
     - URI (maybe name (slug) only?)
     - tag
     - category
@@ -79,7 +78,7 @@ Strike-through means item is ~~Completed~~
 - Add more functionality
 
 0. Attachments
-1. Search term completion
+1. Search term completion or suggestion
 
 #### 2.0 
 
