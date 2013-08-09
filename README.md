@@ -1,4 +1,7 @@
-# WordPress Plugin for MarkLogic Search
+# <img width="125" height="78" src="http://s.wordpress.org/about/images/logos/wordpress-logo-stacked-rgb.png" alt="WordPress"/><font size="300">      ♥   </font><img style="margin-bottom:-8px" src="http://cdn.marklogic.com/content/themes/marklogic-v2/img/marklogic.png" alt="MarkLogic"/>
+
+
+## A WordPress Plugin for MarkLogic Search
 
 Very much work in progress.  Lots of things in flux.
 
@@ -35,7 +38,7 @@ Also, click the checkbox to Enable the plugin and then hit 'Reload all' to cause
 
 ## Issues
 
-Please file issues at https://github.com/marklogic/wordpress-marklogic-search
+Please file issues at https://github.com/marklogic/wordpress-marklogic-search/issues
 
 ## Development details
 
